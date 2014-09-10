@@ -17,6 +17,8 @@ properties {
 }
 echo "Starting Deploy Script"
 
+task default -depends local
+
 # task that is setting up needed stuff for the build process
 task setup {
 	echo "Starting setup task"
