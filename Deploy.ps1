@@ -15,13 +15,13 @@ properties {
     $ftpProductionBackupFolder = "www.frankandfrontier.com/web/content/test/backup"
     $deployToFtp = $true
 }
+echo "Starting Deploy Script"
 
-# task that is used when building for production, depending on the deploy task
-task production -depends deploy
- 
 # task that is setting up needed stuff for the build process
 task setup {
-    # remove the ftp module if it's imported
+	echo "Starting setup task"
+    
+	# remove the ftp module if it's imported
     remove-module [f]tp
     # importing the ftp module from the tools dir
     import-module "$toolsDir\ftp.psm1"
@@ -30,17 +30,16 @@ task setup {
     Remove-ThenAddFolder $deployPkgDir
     Remove-ThenAddFolder $backupDir
     Remove-ThenAddFolder "$backupDir\$dateLabel"
- 
-    <#
-        checking if any episerver dlls is existing in the Libraries folder. This requires that the build server has episerver 7 installed
-        for this application the episerver dlls is not pushed to the source control if we had done that this would not be necessary
-    #>
+	
+	echo "Ending setup task"
 
 }
  
 # copying the deployment package
 task copyPkg -depends setup {
-    # robocopy has some issue with a trailing slash in the path (or it's by design, don't know), lets remove that slash
+    echo "Starting copy task"
+	
+	# robocopy has some issue with a trailing slash in the path (or it's by design, don't know), lets remove that slash
     $deployPath = Remove-LastChar "$deployPkgDir"
     # copying the required files for the deloy package to the deploy folder created at setup
     robocopy "$sourceDir" "$deployPath" /MIR /XD obj bundler Configurations Properties /XF *.bundle *.coffee *.less *.pdb *.cs *.csproj *.csproj.user *.sln .gitignore README.txt packages.config
@@ -49,11 +48,13 @@ task copyPkg -depends setup {
         throw "robocopy commande failed"
         exit 1
     }
+	echo "Ending copy task"
 }
 
  
 # deploying the package
 task deploy -depends mergeConfig {
+	echo "Starting deploy task"
     # only if production and deployToFtp property is set to true
     if($environment -ieq "production" -and $deployToFtp -eq $true) {
         # Setting the connection to the production ftp
@@ -71,6 +72,7 @@ task deploy -depends mergeConfig {
     } else {
 		echo "Hey hey hey"
 	}
+	echo "Ending deploy task"
 }
  
 #helper methods
