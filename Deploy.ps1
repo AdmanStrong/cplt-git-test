@@ -2,7 +2,8 @@
 properties {
     $dateLabel = ([DateTime]::Now.ToString("yyyy-MM-dd_HH-mm-ss"))
     $baseDir = ''
-	$deployBaseDir = "$baseDir\Deploy\"
+	$projectName = ''
+	$deployBaseDir = "C:\Deploy\"
     $deployPkgDir = "$deployBaseDir\Package\"
     $backupDir = "$deployBaseDir\Backup\"
     $toolsDir = "C:\JenkinsBuilds\"
@@ -21,9 +22,8 @@ Task default -Depends deploy
 Task Setup { 
 
 	Write-Host "Starting Setup"
-	Write-Host $config
-    
-	$deployBaseDir = "$baseDir\Deploy\"
+	
+	$deployBaseDir = "C:\Deploy\$projectName\"
     $deployPkgDir = "$deployBaseDir\Package\"
     $backupDir = "$deployBaseDir\Backup\"
 	
@@ -45,10 +45,14 @@ Task Setup {
 Task copyPkg -Depends Setup {
     Write-Host "Starting copy task"
 	
+	$deployBaseDir = "C:\Deploy\$projectName\"
+    $deployPkgDir = "$deployBaseDir\Package\"
+    $backupDir = "$deployBaseDir\Backup\"
+	
 	# robocopy has some issue with a trailing slash in the path (or it's by design, don't know), lets remove that slash
     $deployPath = Remove-LastChar "$deployPkgDir"
     # copying the required files for the deloy package to the deploy folder created at setup
-    robocopy "$sourceDir" "$deployPath" /MIR /XD obj bundler Configurations Properties /XF *.bundle *.coffee *.less *.pdb *.cs *.csproj *.csproj.user *.sln .gitignore README.txt packages.config
+    robocopy "$baseDir" "$deployPath" /MIR /XD obj bundler Configurations Properties /XF *.bundle *.coffee *.less *.pdb *.cs *.csproj *.csproj.user *.sln .gitignore README.txt packages.config
     # checking so that last exit code is ok else break the build (robocopy returning greater that 1 if fail)
     if($LASTEXITCODE -gt 1) {
         throw "robocopy commande failed"
@@ -58,8 +62,13 @@ Task copyPkg -Depends Setup {
 }
  
 # deploying the package
-Task deploy - Depends copyPkg {
+Task deploy -Depends Setup, copyPkg {
 	Write-Host "Starting deploy task"
+	
+	$deployBaseDir = "C:\Deploy\$projectName\"
+    $deployPkgDir = "$deployBaseDir\Package\"
+    $backupDir = "$deployBaseDir\Backup\"
+	
     # only if production and deployToFtp property is set to true
     if($environment -ieq "production" -and $deployToFtp -eq $true) {
         # Setting the connection to the production ftp
