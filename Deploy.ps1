@@ -19,11 +19,6 @@ echo "Starting Deploy Script"
 
 task default
 {
-	
-}
-
-# task that is setting up needed stuff for the build process
-task setup {
 	echo "Starting setup task"
     
 	# remove the ftp module if it's imported
@@ -37,11 +32,10 @@ task setup {
     Remove-ThenAddFolder "$backupDir\$dateLabel"
 	
 	echo "Ending setup task"
-
 }
  
 # copying the deployment package
-task copyPkg -depends setup {
+task copyPkg -depends default {
     echo "Starting copy task"
 	
 	# robocopy has some issue with a trailing slash in the path (or it's by design, don't know), lets remove that slash
