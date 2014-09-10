@@ -16,7 +16,7 @@ properties {
     $deployToFtp = $true
 }
 
-Task default -Depends Setup
+Task default -Depends deploy
 
 Task Setup { 
 
@@ -42,7 +42,7 @@ Task Setup {
 }
 
 # copying the deployment package
-Task copyPkg -Depends default {
+Task copyPkg -Depends Setup {
     Write-Host "Starting copy task"
 	
 	# robocopy has some issue with a trailing slash in the path (or it's by design, don't know), lets remove that slash
@@ -58,7 +58,7 @@ Task copyPkg -Depends default {
 }
  
 # deploying the package
-Task deploy {
+Task deploy - Depends copyPkg {
 	Write-Host "Starting deploy task"
     # only if production and deployToFtp property is set to true
     if($environment -ieq "production" -and $deployToFtp -eq $true) {
