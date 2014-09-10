@@ -1,11 +1,11 @@
 # properties that is used by the script
 properties {
     $dateLabel = ([DateTime]::Now.ToString("yyyy-MM-dd_HH-mm-ss"))
-    $baseDir = 'C:\Sites\'
-    $toolsDir = "C:\JenkinsBuilds\"
-    $deployBaseDir = "$baseDir\Deploy\"
+    $baseDir = ''
+	$deployBaseDir = "$baseDir\Deploy\"
     $deployPkgDir = "$deployBaseDir\Package\"
     $backupDir = "$deployBaseDir\Backup\"
+    $toolsDir = "C:\JenkinsBuilds\"
     $config = 'debug'
     $environment = 'debug'
     $ftpProductionHost = 'http://ftp.ord1-1.websitesettings.com'
@@ -16,10 +16,17 @@ properties {
     $deployToFtp = $true
 }
 
-task default
-{
-	Write-Host "Starting default"
+Task default -Depends Setup
+
+Task Setup { 
+
+	Write-Host "Starting Setup"
+	Write-Host $config
     
+	$deployBaseDir = "$baseDir\Deploy\"
+    $deployPkgDir = "$deployBaseDir\Package\"
+    $backupDir = "$deployBaseDir\Backup\"
+	
 	# remove the ftp module if it's imported
     remove-module [f]tp
     # importing the ftp module from the tools dir
@@ -29,12 +36,13 @@ task default
     Remove-ThenAddFolder $deployPkgDir
     Remove-ThenAddFolder $backupDir
     Remove-ThenAddFolder "$backupDir\$dateLabel"
-	
-	Write-Host "Hello, World!"
+	Write-Host $deployPkgDir
+	Write-Host $backupDir
+	Write-Host "Ending Setup" 
 }
- 
+
 # copying the deployment package
-task copyPkg -depends default {
+Task copyPkg -Depends default {
     Write-Host "Starting copy task"
 	
 	# robocopy has some issue with a trailing slash in the path (or it's by design, don't know), lets remove that slash
@@ -48,10 +56,9 @@ task copyPkg -depends default {
     }
 	Write-Host "Ending copy task"
 }
-
  
 # deploying the package
-task deploy -depends mergeConfig {
+Task deploy {
 	Write-Host "Starting deploy task"
     # only if production and deployToFtp property is set to true
     if($environment -ieq "production" -and $deployToFtp -eq $true) {
