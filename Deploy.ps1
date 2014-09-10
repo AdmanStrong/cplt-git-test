@@ -15,11 +15,10 @@ properties {
     $ftpProductionBackupFolder = "www.frankandfrontier.com/web/content/test/backup"
     $deployToFtp = $true
 }
-echo "Starting Deploy Script"
 
 task default
 {
-	echo "Starting setup task"
+	Write-Host "Starting default"
     
 	# remove the ftp module if it's imported
     remove-module [f]tp
@@ -31,12 +30,12 @@ task default
     Remove-ThenAddFolder $backupDir
     Remove-ThenAddFolder "$backupDir\$dateLabel"
 	
-	echo "Ending setup task"
+	Write-Host "Hello, World!"
 }
  
 # copying the deployment package
 task copyPkg -depends default {
-    echo "Starting copy task"
+    Write-Host "Starting copy task"
 	
 	# robocopy has some issue with a trailing slash in the path (or it's by design, don't know), lets remove that slash
     $deployPath = Remove-LastChar "$deployPkgDir"
@@ -47,13 +46,13 @@ task copyPkg -depends default {
         throw "robocopy commande failed"
         exit 1
     }
-	echo "Ending copy task"
+	Write-Host "Ending copy task"
 }
 
  
 # deploying the package
 task deploy -depends mergeConfig {
-	echo "Starting deploy task"
+	Write-Host "Starting deploy task"
     # only if production and deployToFtp property is set to true
     if($environment -ieq "production" -and $deployToFtp -eq $true) {
         # Setting the connection to the production ftp
@@ -69,9 +68,9 @@ task deploy -depends mergeConfig {
         $localDeployPkgDir = Remove-LastChar "$deployPkgDir"
         Send-ToFtp "$localDeployPkgDir" "$ftpProductionWebRootFolder"
     } else {
-		echo "Hey hey hey"
+		Write-Host "Hey hey hey"
 	}
-	echo "Ending deploy task"
+	Write-Host "Ending deploy task"
 }
  
 #helper methods
