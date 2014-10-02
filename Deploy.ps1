@@ -9,7 +9,7 @@ properties {
     $toolsDir = "C:\JenkinsBuilds\"
     $config = 'debug'
     $environment = 'debug'
-    $ftpProductionHost = 'http://ftp.ord1-1.websitesettings.com'
+    $ftpProductionHost = 'ftp.ord1-1.websitesettings.com'
     $ftpProductionUsername = 'catfrontroadtrip'
     $ftpProductionPassword = 'I9rouybKb1hhrfq8NoN2'
     $ftpProductionWebRootFolder = "www.frankandfrontier.com/web/content/test"
@@ -32,10 +32,22 @@ Task Setup {
     # importing the ftp module from the tools dir
     import-module "$toolsDir\ftp.psm1"
  
+	Write-Host "Pre Add"
+ 
+	Add-Content C:\Deploy\GitTest\test.txt "The End"
+ 
+	Write-Host "Post Add"
+ 
+	$acl = Get-Acl $deployPkgDir
+	$acl.access
+	Write-Host Get-Acl $deployPkgDir | Format-List
+ 
+	Write-Host "Post Permissions"
+ 
     # removing and creating folders needed for the build, deploy package dir and a backup dir with a date
     Remove-ThenAddFolder $deployPkgDir
-    Remove-ThenAddFolder $backupDir
-    Remove-ThenAddFolder "$backupDir\$dateLabel"
+    #Remove-ThenAddFolder $backupDir
+    #Remove-ThenAddFolder "$backupDir\$dateLabel"
 	Write-Host $deployPkgDir
 	Write-Host $backupDir
 	Write-Host "Ending Setup" 
@@ -84,7 +96,9 @@ Task deploy -Depends Setup, copyPkg {
         $localDeployPkgDir = Remove-LastChar "$deployPkgDir"
         Send-ToFtp "$localDeployPkgDir" "$ftpProductionWebRootFolder"
     } else {
-		Write-Host "Hey hey hey"
+		Write-Host "Non production - no deploy"
+		Write-Host $environment
+		Write-Host $deployToFtp
 	}
 	Write-Host "Ending deploy task"
 }
@@ -92,8 +106,8 @@ Task deploy -Depends Setup, copyPkg {
 #helper methods
 function Remove-IfExists([string]$name) {
     if ((Test-Path -path $name)) {
-        dir $name -recurse | where {!@(dir -force $_.fullname)} | rm
-        Remove-Item $name -Recurse
+        #dir $name -recurse | where {!@(dir -force $_.fullname)} | rm
+        Remove-Item $name -Recurse -Force
     }
 }
  
