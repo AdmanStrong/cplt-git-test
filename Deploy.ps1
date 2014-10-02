@@ -100,6 +100,7 @@ Task deploy -Depends Setup, copyPkg {
 		Write-Host $environment
 		Write-Host $deployToFtp
 	}
+	
 	Write-Host "Ending deploy task"
 }
  
