@@ -9,7 +9,7 @@ properties {
     $toolsDir = "C:\JenkinsBuilds\"
     $config = 'debug'
     $environment = 'debug'
-    $ftpProductionHost = 'ftp.ord1-1.websitesettings.com'
+    $ftpProductionHost = 'ftp://ftp.ord1-1.websitesettings.com'
     $ftpProductionUsername = 'catfrontroadtrip'
     $ftpProductionPassword = 'I9rouybKb1hhrfq8NoN2'
     $ftpProductionWebRootFolder = "www.frankandfrontier.com/web/content/test"
@@ -46,8 +46,8 @@ Task Setup {
  
     # removing and creating folders needed for the build, deploy package dir and a backup dir with a date
     Remove-ThenAddFolder $deployPkgDir
-    #Remove-ThenAddFolder $backupDir
-    #Remove-ThenAddFolder "$backupDir\$dateLabel"
+    Remove-ThenAddFolder $backupDir
+    Remove-ThenAddFolder "$backupDir\$dateLabel"
 	Write-Host $deployPkgDir
 	Write-Host $backupDir
 	Write-Host "Ending Setup" 
