@@ -9,7 +9,7 @@ properties {
     $toolsDir = "C:\JenkinsBuilds\"
     $config = 'debug'
     $environment = 'debug'
-    $ftpProductionHost = 'ftp://ftp.ord1-1.websitesettings.com'
+    $ftpProductionHost = 'ftp://ftp.ord1-1.websitesettings.com/'
     $ftpProductionUsername = 'catfrontroadtrip'
     $ftpProductionPassword = 'I9rouybKb1hhrfq8NoN2'
     $ftpProductionWebRootFolder = "www.frankandfrontier.com/web/content/test"
